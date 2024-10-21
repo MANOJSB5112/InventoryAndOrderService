@@ -14,6 +14,8 @@ public class Product extends BaseModel{
     private String description;
     private double price;
     @ManyToOne
+    private Category category;
+    @ManyToOne
     @JoinColumn(name = "seller_id")
     private Seller seller;
 }

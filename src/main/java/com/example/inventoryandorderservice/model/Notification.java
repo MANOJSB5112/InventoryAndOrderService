@@ -12,8 +12,7 @@ public class Notification extends BaseModel{
     @JoinColumn(name = "product_id")
     private Product product;
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private Customer customer;
     @Enumerated(EnumType.ORDINAL)
     private NotificationStatus status;
 }

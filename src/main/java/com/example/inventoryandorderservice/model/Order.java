@@ -11,8 +11,7 @@ import java.util.List;
 @Entity(name = "order_table")
 public class Order extends BaseModel{
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private Customer customer;
     @ManyToOne
     @JoinColumn(name = "delivery_address_id")
     private Address deliveryAddress;

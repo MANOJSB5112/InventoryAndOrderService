@@ -11,13 +11,14 @@ import java.util.List;
 
 @Getter
 @Setter
-@Entity(name = "user_table")
-public class User extends BaseModel{
+@Entity(name = "customer_table")
+public class Customer extends BaseModel{
+    private long userId;
     private String name;
     private String email;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "customer")
     private List<Address> addresses;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "customer")
     private List<Order> orders;
     @Enumerated(EnumType.ORDINAL)
     private UserType userType;
