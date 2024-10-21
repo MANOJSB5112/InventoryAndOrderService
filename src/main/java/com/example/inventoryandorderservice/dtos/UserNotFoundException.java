@@ -1,4 +1,4 @@
-package com.example.inventoryandorderservice.SellerPackage.exceptions;
+package com.example.inventoryandorderservice.dtos;
 
 public class UserNotFoundException extends Exception{
 

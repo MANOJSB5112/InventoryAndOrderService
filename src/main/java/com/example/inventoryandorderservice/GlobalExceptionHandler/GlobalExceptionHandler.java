@@ -1,7 +1,7 @@
 package com.example.inventoryandorderservice.GlobalExceptionHandler;
 
-import com.example.inventoryandorderservice.SellerPackage.exceptions.CategoryNotFoundException;
-import com.example.inventoryandorderservice.SellerPackage.exceptions.UserNotFoundException;
+import com.example.inventoryandorderservice.CategoryPackage.exceptions.CategoryNotFoundException;
+import com.example.inventoryandorderservice.dtos.UserNotFoundException;
 import com.example.inventoryandorderservice.dtos.ExceptionDto;
 import com.example.inventoryandorderservice.dtos.ResponseStatus;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.example.inventoryandorderservice.SellerPackage.exceptions;
+package com.example.inventoryandorderservice.CategoryPackage.exceptions;
 
 public class CategoryNotFoundException extends Exception{
 

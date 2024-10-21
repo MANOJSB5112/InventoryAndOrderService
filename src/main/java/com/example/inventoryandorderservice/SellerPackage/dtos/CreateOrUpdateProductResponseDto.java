@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateProductResponseDto {
+public class CreateOrUpdateProductResponseDto {
     private Product product;
     private ResponseStatus responseStatus;
 }
