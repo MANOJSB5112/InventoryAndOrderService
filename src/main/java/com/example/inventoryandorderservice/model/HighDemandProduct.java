@@ -1,9 +1,15 @@
 package com.example.inventoryandorderservice.model;
 
-//@Getter
-//@Setter
-//@Entity
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity
 public class HighDemandProduct extends BaseModel{
-//    private Product product;
-//    private int maxQuantity;
+    @OneToOne
+    private Product product;
+    private int maxQuantity;
 }

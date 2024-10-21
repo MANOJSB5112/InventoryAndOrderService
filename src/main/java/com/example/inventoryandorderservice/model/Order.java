@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@Entity
+@Entity(name = "order_table")
 public class Order extends BaseModel{
     @ManyToOne
     @JoinColumn(name = "user_id")
