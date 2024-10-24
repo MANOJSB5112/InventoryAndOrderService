@@ -24,6 +24,14 @@ public class GlobalExceptionHandler {
         ExceptionDto exceptionDto=new ExceptionDto();
         exceptionDto.setMessage(ex.getMessage());
         exceptionDto.setResponseStatus(ResponseStatus.FAILURE);
+        return new ResponseEntity<>(exceptionDto, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionDto> handleGlobalException(Exception ex) {
+        ExceptionDto exceptionDto=new ExceptionDto();
+        exceptionDto.setMessage(ex.getMessage());
+        exceptionDto.setResponseStatus(ResponseStatus.FAILURE);
         return new ResponseEntity<>(exceptionDto, HttpStatus.FORBIDDEN);
     }
 }

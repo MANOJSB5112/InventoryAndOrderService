@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/sellers")
+@RequestMapping("/seller")
 public class SellerController {
 
     private SellerService sellerService;

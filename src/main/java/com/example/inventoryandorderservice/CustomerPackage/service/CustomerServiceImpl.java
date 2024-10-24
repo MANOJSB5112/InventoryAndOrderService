@@ -1,4 +1,4 @@
-package com.example.inventoryandorderservice.GuestPackage.service;
+package com.example.inventoryandorderservice.CustomerPackage.service;
 
 import com.example.inventoryandorderservice.ProductPackage.service.ProductService;
 import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class GuestServiceImpl implements GuestService{
+public class CustomerServiceImpl implements CustomerService{
     private ProductService productService;
 
     @Autowired
-    public GuestServiceImpl(ProductService productService)
+    public CustomerServiceImpl(ProductService productService)
     {
         this.productService=productService;
     }

@@ -10,6 +10,7 @@ import com.example.inventoryandorderservice.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -56,7 +57,7 @@ public class ProductServiceImpl implements ProductService {
         if(price!=null) {
             product.setPrice(price);
         }
-        productRepository.save(product);
+        product=productRepository.save(product);
         return product;
     }
 
@@ -65,6 +66,22 @@ public class ProductServiceImpl implements ProductService {
         Product product=validateSellerForProductIdAndGet(seller,productId);
         product.setIsDeleted(true);
         productRepository.save(product);
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    @Override
+    public Product getProductById(Long productId) throws ResourceNotFoundException {
+        return validateProductIdAndGet(productId);
+    }
+
+    @Override
+    public List<Product> getProductByCategoryId(Long categoryId) throws ResourceNotFoundException {
+        Category category=categoryService.validateCategoryAndGet(categoryId);
+        return productRepository.findAllByCategoryId(category.getId());
     }
 
     public Product validateSellerForProductIdAndGet(Seller seller, long productId) throws ResourceNotFoundException, AccessDeniedException {
@@ -79,5 +96,14 @@ public class ProductServiceImpl implements ProductService {
             throw new AccessDeniedException("Product id "+productId+" does not belong to the Seller id "+seller.getId());
         }
         return product;
+    }
+
+    public Product validateProductIdAndGet(Long productId) throws ResourceNotFoundException {
+        Optional<Product> productOptional=productRepository.findById(productId);
+        if(productOptional.isEmpty())
+        {
+            throw new ResourceNotFoundException("Product not found with the id : "+productId);
+        }
+        return productOptional.get();
     }
 }
