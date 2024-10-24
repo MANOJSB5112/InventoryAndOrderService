@@ -1,6 +1,6 @@
 package com.example.inventoryandorderservice.CategoryPackage.service;
 
-import com.example.inventoryandorderservice.CategoryPackage.exceptions.CategoryNotFoundException;
+import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
 import com.example.inventoryandorderservice.model.Category;
 import com.example.inventoryandorderservice.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +19,11 @@ public class CategoryServiceImpl implements CategoryService{
         this.categoryRepository=categoryRepository;
     }
     @Override
-    public Category validateCategoryAndGet(Long categoryId) throws CategoryNotFoundException {
+    public Category validateCategoryAndGet(Long categoryId) throws ResourceNotFoundException {
         Optional<Category> categoryOptional=categoryRepository.findById(categoryId);
         if(categoryOptional.isEmpty())
         {
-            throw new CategoryNotFoundException("Category Not found ");
+            throw new ResourceNotFoundException("Category Not found ");
         }
         return categoryOptional.get();
     }

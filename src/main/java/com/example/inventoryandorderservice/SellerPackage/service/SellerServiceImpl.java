@@ -1,10 +1,8 @@
 package com.example.inventoryandorderservice.SellerPackage.service;
 
-import com.example.inventoryandorderservice.CategoryPackage.exceptions.CategoryNotFoundException;
-import com.example.inventoryandorderservice.CategoryPackage.service.CategoryService;
 import com.example.inventoryandorderservice.ProductPackage.service.ProductService;
-import com.example.inventoryandorderservice.dtos.UserNotFoundException;
-import com.example.inventoryandorderservice.model.Category;
+import com.example.inventoryandorderservice.exceptions.AccessDeniedException;
+import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
 import com.example.inventoryandorderservice.model.Product;
 import com.example.inventoryandorderservice.model.Seller;
 import com.example.inventoryandorderservice.repository.SellerRepository;
@@ -17,28 +15,39 @@ import java.util.Optional;
 public class SellerServiceImpl implements SellerService{
     private SellerRepository sellerRepository;
     private ProductService productService;
-    private CategoryService categoryService;
+
 
     @Autowired
-    public SellerServiceImpl(SellerRepository sellerRepository, ProductService productService, CategoryService categoryService)
+    public SellerServiceImpl(SellerRepository sellerRepository, ProductService productService)
     {
         this.sellerRepository=sellerRepository;
         this.productService=productService;
-        this.categoryService=categoryService;
+
     }
 
     @Override
-    public Product addProduct(long userId, long categoryId, String name, String description, double price) throws UserNotFoundException, CategoryNotFoundException {
-        Seller seller=validateSellerAndGet(userId);
-        Category category=categoryService.validateCategoryAndGet(categoryId);
-        return productService.addProduct(seller,category,name,description,price);
+    public Product addProduct(long sellerId, long categoryId, String name, String description, double price) throws ResourceNotFoundException{
+        Seller seller=validateSellerAndGet(sellerId);
+        return productService.addProduct(seller,categoryId,name,description,price);
     }
 
-    public Seller validateSellerAndGet(Long sellerId) throws UserNotFoundException {
+    @Override
+    public Product updateProduct(long sellerId, long productId,long  categoryId, String name, String description, double price) throws ResourceNotFoundException, AccessDeniedException {
+        Seller seller=validateSellerAndGet(sellerId);
+        return productService.updateProduct(seller,productId,categoryId,name,description,price);
+    }
+
+    @Override
+    public void deleteProduct(long sellerId, long productId) throws ResourceNotFoundException, AccessDeniedException {
+        Seller seller=validateSellerAndGet(sellerId);
+        productService.deleteProduct(seller,productId);
+    }
+
+    public Seller validateSellerAndGet(Long sellerId) throws ResourceNotFoundException {
         Optional<Seller> sellerOptional =sellerRepository.findById(sellerId);
         if(sellerOptional.isEmpty())
         {
-            throw new UserNotFoundException("User not found with the give id");
+            throw new ResourceNotFoundException("Seller not found with the give id "+sellerId);
         }
         return sellerOptional.get();
     }
