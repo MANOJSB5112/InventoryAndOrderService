@@ -9,6 +9,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
 //    List<Order> findAllByOrderDetails
 //    List<Order> findByOrderDetailsProductSeller(Seller seller);
-
+  Order save(Order order);
 
 }

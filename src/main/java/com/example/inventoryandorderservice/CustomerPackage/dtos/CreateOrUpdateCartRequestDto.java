@@ -1,4 +1,4 @@
-package com.example.inventoryandorderservice.dtos;
+package com.example.inventoryandorderservice.CustomerPackage.dtos;
 
 import lombok.Getter;
 import lombok.Setter;

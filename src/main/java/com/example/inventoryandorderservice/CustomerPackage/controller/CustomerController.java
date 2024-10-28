@@ -1,11 +1,15 @@
 package com.example.inventoryandorderservice.CustomerPackage.controller;
 
+import com.example.inventoryandorderservice.CustomerPackage.dtos.*;
 import com.example.inventoryandorderservice.CustomerPackage.service.CustomerService;
 import com.example.inventoryandorderservice.dtos.ResponseStatus;
-import com.example.inventoryandorderservice.dtos.*;
+import com.example.inventoryandorderservice.exceptions.AddressNotMatchForUser;
+import com.example.inventoryandorderservice.exceptions.HighDemandProductException;
+import com.example.inventoryandorderservice.exceptions.OutOfStockException;
 import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
 import com.example.inventoryandorderservice.model.Cart;
 import com.example.inventoryandorderservice.model.CartItem;
+import com.example.inventoryandorderservice.model.Order;
 import com.example.inventoryandorderservice.model.Product;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,7 +67,7 @@ public class CustomerController {
     }
 
     @PutMapping("/cart/items")
-    public ResponseEntity<CreateOrUpdateCartResponseDto> updateCartItem(@RequestBody CreateOrUpdateCartRequestDto requestDto) throws ResourceNotFoundException {
+    public ResponseEntity<CreateOrUpdateCartResponseDto> updateCartItem(@RequestBody CreateOrUpdateCartRequestDto requestDto) throws ResourceNotFoundException, OutOfStockException, HighDemandProductException {
         long userId=requestDto.getUserId();
         long productId=requestDto.getProductId();
         int quantity=requestDto.getQuantity();
@@ -82,5 +86,16 @@ public class CustomerController {
         responseDto.setCartItems(cartItems);
         responseDto.setResponseStatus(ResponseStatus.SUCCESS);
         return new ResponseEntity<>(responseDto,HttpStatus.OK);
+    }
+
+    @PostMapping("/orders")
+    public ResponseEntity<PlaceOrderResponseDto> placeOrder(@RequestBody PlaceOrderRequestDto requestDto) throws AddressNotMatchForUser, OutOfStockException, ResourceNotFoundException, HighDemandProductException {
+        long userId=requestDto.getUserId();
+        long addressId=requestDto.getAddressId();
+        Order order=customerService.placeOrder(userId,addressId);
+        PlaceOrderResponseDto responseDto=new PlaceOrderResponseDto();
+        responseDto.setOrder(order);
+        responseDto.setStatus(ResponseStatus.SUCCESS);
+        return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
     }
 }
