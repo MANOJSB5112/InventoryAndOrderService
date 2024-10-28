@@ -3,10 +3,7 @@ package com.example.inventoryandorderservice.CustomerPackage.service;
 import com.example.inventoryandorderservice.CartPackage.service.CartService;
 import com.example.inventoryandorderservice.OrderPackage.OrderService.OrderService;
 import com.example.inventoryandorderservice.ProductPackage.service.ProductService;
-import com.example.inventoryandorderservice.exceptions.AddressNotMatchForUser;
-import com.example.inventoryandorderservice.exceptions.HighDemandProductException;
-import com.example.inventoryandorderservice.exceptions.OutOfStockException;
-import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
+import com.example.inventoryandorderservice.exceptions.*;
 import com.example.inventoryandorderservice.model.*;
 import com.example.inventoryandorderservice.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,5 +78,17 @@ public class CustomerServiceImpl implements CustomerService{
     public List<Order> getAllOrdersForCustomer(long userId) throws ResourceNotFoundException {
         Customer customer=validateAndGetCustomer(userId);
         return orderService.getAllOrdersForCustomer(customer);
+    }
+
+    @Override
+    public Order getOrderByIdForCustomer(long userId, long orderId) throws ResourceNotFoundException, AccessDeniedException {
+        Customer customer=validateAndGetCustomer(userId);
+        return orderService.getOrderByIdForCustomer(customer,orderId);
+    }
+
+    @Override
+    public String cancelOrderById(long userId, long orderId) throws ResourceNotFoundException, AccessDeniedException {
+        Customer customer=validateAndGetCustomer(userId);
+        return orderService.cancelOrderById(customer,orderId);
     }
 }

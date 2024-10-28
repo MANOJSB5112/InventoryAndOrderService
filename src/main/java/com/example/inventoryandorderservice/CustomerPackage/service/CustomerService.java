@@ -1,9 +1,6 @@
 package com.example.inventoryandorderservice.CustomerPackage.service;
 
-import com.example.inventoryandorderservice.exceptions.AddressNotMatchForUser;
-import com.example.inventoryandorderservice.exceptions.HighDemandProductException;
-import com.example.inventoryandorderservice.exceptions.OutOfStockException;
-import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
+import com.example.inventoryandorderservice.exceptions.*;
 import com.example.inventoryandorderservice.model.*;
 
 import java.util.List;
@@ -21,4 +18,8 @@ public interface CustomerService {
     Customer validateAndGetCustomer(long userId) throws ResourceNotFoundException;
 
     List<Order> getAllOrdersForCustomer(long userId) throws ResourceNotFoundException;
+
+    Order getOrderByIdForCustomer(long userId,long orderId) throws ResourceNotFoundException, AccessDeniedException;
+
+    String cancelOrderById(long userId, long orderId) throws ResourceNotFoundException, AccessDeniedException;
 }

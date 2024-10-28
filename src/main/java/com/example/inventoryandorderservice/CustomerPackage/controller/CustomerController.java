@@ -3,10 +3,7 @@ package com.example.inventoryandorderservice.CustomerPackage.controller;
 import com.example.inventoryandorderservice.CustomerPackage.dtos.*;
 import com.example.inventoryandorderservice.CustomerPackage.service.CustomerService;
 import com.example.inventoryandorderservice.dtos.ResponseStatus;
-import com.example.inventoryandorderservice.exceptions.AddressNotMatchForUser;
-import com.example.inventoryandorderservice.exceptions.HighDemandProductException;
-import com.example.inventoryandorderservice.exceptions.OutOfStockException;
-import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
+import com.example.inventoryandorderservice.exceptions.*;
 import com.example.inventoryandorderservice.model.Cart;
 import com.example.inventoryandorderservice.model.CartItem;
 import com.example.inventoryandorderservice.model.Order;
@@ -45,7 +42,7 @@ public class CustomerController {
         productResponseDto.setResponseStatus(ResponseStatus.SUCCESS);
         return new ResponseEntity<>(productResponseDto,HttpStatus.OK);
     }
-    @GetMapping("/products/{categoryId}")
+    @GetMapping("/products/category/{categoryId}")
     public ResponseEntity<ProductListResponseDto> getProductByCategoryId(@PathVariable("categoryId") Long categoryId) throws ResourceNotFoundException {
         List<Product> products=customerService.getProductByCategoryId(categoryId);
         ProductListResponseDto productListResponseDto=new ProductListResponseDto();
@@ -54,42 +51,48 @@ public class CustomerController {
         return new ResponseEntity<>(productListResponseDto, HttpStatus.OK);
     }
 
-    @PostMapping("/cart/items")
-    public ResponseEntity<CreateOrUpdateCartResponseDto> addToCart(@RequestBody CreateOrUpdateCartRequestDto requestDto) throws ResourceNotFoundException {
-        long userId=requestDto.getUserId();
-        long productId=requestDto.getProductId();
-        int quantity=requestDto.getQuantity();
+    @PostMapping("/{userId}/cart/items")
+    public ResponseEntity<CreateOrUpdateCartResponseDto> addToCart(@PathVariable("userId") Long userId,
+                                                                   @RequestBody CreateOrUpdateCartRequestDto requestDto) throws ResourceNotFoundException {
+        long productId = requestDto.getProductId();
+        int quantity = requestDto.getQuantity();
+
         Cart cart = customerService.addToCart(userId, productId, quantity);
-        CreateOrUpdateCartResponseDto responseDto=new CreateOrUpdateCartResponseDto();
+        CreateOrUpdateCartResponseDto responseDto = new CreateOrUpdateCartResponseDto();
         responseDto.setCart(cart);
         responseDto.setResponseStatus(ResponseStatus.SUCCESS);
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @PutMapping("/cart/items")
-    public ResponseEntity<CreateOrUpdateCartResponseDto> updateCartItem(@RequestBody CreateOrUpdateCartRequestDto requestDto) throws ResourceNotFoundException, OutOfStockException, HighDemandProductException {
-        long userId=requestDto.getUserId();
-        long productId=requestDto.getProductId();
-        int quantity=requestDto.getQuantity();
+    @PutMapping("/{userId}/cart/items")
+    public ResponseEntity<CreateOrUpdateCartResponseDto> updateCartItem(@PathVariable("userId") Long userId,
+                                                                        @RequestBody CreateOrUpdateCartRequestDto requestDto)
+            throws ResourceNotFoundException, OutOfStockException, HighDemandProductException {
+        long productId = requestDto.getProductId();
+        int quantity = requestDto.getQuantity();
+
         Cart cart = customerService.updateCartItem(userId, productId, quantity);
-        CreateOrUpdateCartResponseDto responseDto=new CreateOrUpdateCartResponseDto();
+        CreateOrUpdateCartResponseDto responseDto = new CreateOrUpdateCartResponseDto();
         responseDto.setCart(cart);
         responseDto.setResponseStatus(ResponseStatus.SUCCESS);
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping("/cart/items")
-    public ResponseEntity<GetCartItemResponseDto> getCartItems(@RequestParam Long userId) throws ResourceNotFoundException {
+    @GetMapping("/{userId}/cart/items")
+    public ResponseEntity<GetCartItemResponseDto> getCartItems(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
         List<CartItem> cartItems = customerService.getCartItems(userId);
-        GetCartItemResponseDto responseDto=new GetCartItemResponseDto();
+        GetCartItemResponseDto responseDto = new GetCartItemResponseDto();
         responseDto.setCartItems(cartItems);
         responseDto.setResponseStatus(ResponseStatus.SUCCESS);
-        return new ResponseEntity<>(responseDto,HttpStatus.OK);
+
+        return ResponseEntity.ok(responseDto);
     }
 
-    @PostMapping("/orders")
-    public ResponseEntity<PlaceOrderResponseDto> placeOrder(@RequestBody PlaceOrderRequestDto requestDto) throws AddressNotMatchForUser, OutOfStockException, ResourceNotFoundException, HighDemandProductException {
-        long userId=requestDto.getUserId();
+    @PostMapping("/{userId}/orders/")
+    public ResponseEntity<PlaceOrderResponseDto> placeOrder(@PathVariable("userId") Long userId,@RequestBody PlaceOrderRequestDto requestDto) throws AddressNotMatchForUser, OutOfStockException, ResourceNotFoundException, HighDemandProductException {
         long addressId=requestDto.getAddressId();
         Order order=customerService.placeOrder(userId,addressId);
         PlaceOrderResponseDto responseDto=new PlaceOrderResponseDto();
@@ -98,22 +101,31 @@ public class CustomerController {
         return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
     }
 
-    @GetMapping("/orders")
-    public ResponseEntity<GetOrdersListResponseDto> getAllOrdersForCustomer(@RequestParam Long userId) throws ResourceNotFoundException {
+    @GetMapping("/{userId}/orders/")
+    public ResponseEntity<GetOrdersListResponseDto> getAllOrders(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
         List<Order> orders= customerService.getAllOrdersForCustomer(userId);
 
         GetOrdersListResponseDto responseDto=new GetOrdersListResponseDto();
         responseDto.setOrders(orders);
         responseDto.setResponseStatus(ResponseStatus.SUCCESS);
-        return new ResponseEntity<>(responseDto,HttpStatus.OK);
+        return ResponseEntity.ok(responseDto);
     }
-//    @GetMapping("/orders/{userId}/{orderId}")
-//    public ResponseEntity<GetOrdersListResponseDto> getAllOrdersForCustomer(@RequestParam Long userId,@RequestParam Long orderId) throws ResourceNotFoundException {
-//        List<Order> orders= customerService.getAllOrdersForCustomer(userId);
-//
-//        GetOrdersListResponseDto responseDto=new GetOrdersListResponseDto();
-//        responseDto.setOrders(orders);
-//        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
-//        return new ResponseEntity<>(responseDto,HttpStatus.OK);
-//    }
+    @GetMapping("/{userId}/orders/{orderId}")
+    public ResponseEntity<GetOrderResponseDto> getOrderById(@PathVariable("userId") Long userId,@PathVariable("orderId") Long orderId) throws ResourceNotFoundException, AccessDeniedException {
+        Order order = customerService.getOrderByIdForCustomer(userId, orderId);
+
+        GetOrderResponseDto responseDto = new GetOrderResponseDto();
+        responseDto.setOrder(order);
+        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
+
+        return ResponseEntity.ok(responseDto);
+    }
+    @DeleteMapping("/{userId}/orders/{orderId}")
+    public ResponseEntity<CancelOrderResponseDto> cancelOrderById(@PathVariable("userId") Long userId,@PathVariable("orderId") Long orderId) throws ResourceNotFoundException, AccessDeniedException {
+        String message=customerService.cancelOrderById(userId,orderId);
+        CancelOrderResponseDto responseDto=new CancelOrderResponseDto();
+        responseDto.setMessage(message);
+        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
+        return ResponseEntity.ok(responseDto);
+    }
 }
