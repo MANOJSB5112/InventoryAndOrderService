@@ -44,7 +44,7 @@ public class SellerServiceImpl implements SellerService{
     }
 
     public Seller validateSellerAndGet(Long sellerId) throws ResourceNotFoundException {
-        Optional<Seller> sellerOptional =sellerRepository.findById(sellerId);
+        Optional<Seller> sellerOptional =sellerRepository.findByUserId(sellerId);
         if(sellerOptional.isEmpty())
         {
             throw new ResourceNotFoundException("Seller not found with the give id "+sellerId);

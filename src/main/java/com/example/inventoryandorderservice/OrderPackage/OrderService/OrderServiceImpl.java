@@ -1,95 +1,43 @@
 package com.example.inventoryandorderservice.OrderPackage.OrderService;
 
-import com.example.inventoryandorderservice.AddressPackage.Service.AddressService;
-import com.example.inventoryandorderservice.CartPackage.service.CartService;
 import com.example.inventoryandorderservice.exceptions.AddressNotMatchForUser;
+import com.example.inventoryandorderservice.exceptions.HighDemandProductException;
 import com.example.inventoryandorderservice.exceptions.OutOfStockException;
 import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
-import com.example.inventoryandorderservice.model.*;
-import com.example.inventoryandorderservice.repository.OrderDetailRepository;
+import com.example.inventoryandorderservice.model.Customer;
+import com.example.inventoryandorderservice.model.Order;
 import com.example.inventoryandorderservice.repository.OrderRepository;
-import com.example.inventoryandorderservice.repository.ProductInventoryRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService{
-    private AddressService addressService;
-    private CartService cartService;
-    private ProductInventoryRepository productInventoryRepository;
-    private OrderDetailRepository orderDetailRepository;
+    private PlaceOrderFacade placeOrderFacade;
     private OrderRepository orderRepository;
 
-
     @Autowired
-    public OrderServiceImpl(AddressService addressService,CartService cartService,
-                            ProductInventoryRepository productInventoryRepository,OrderDetailRepository orderDetailRepository,
-                            OrderRepository orderRepository)
+    public OrderServiceImpl(PlaceOrderFacade placeOrderFacade,OrderRepository orderRepository)
     {
-        this.addressService=addressService;
-        this.cartService=cartService;
-        this.productInventoryRepository=productInventoryRepository;
-        this.orderDetailRepository=orderDetailRepository;
+        this.placeOrderFacade=placeOrderFacade;
         this.orderRepository=orderRepository;
     }
     @Override
     @Transactional
-    public Order placeOrder(Customer customer, long addressId) throws AddressNotMatchForUser, ResourceNotFoundException, OutOfStockException {
-        Address address=addressService.validateAddressForUserAndGet(customer.getUserId(),addressId);
-        List<CartItem> cartItems=cartService.getCartItems(customer.getUserId());
-        double totalAmount=cartService.getCartValue(customer.getUserId());
-        List<OrderDetail> orderDetails=getOrderDetailsForCartItems(cartItems);
-        return getOrderForOrderDetails(orderDetails,customer,address,totalAmount);
+    public Order placeOrder(Customer customer, long addressId) throws AddressNotMatchForUser, ResourceNotFoundException, OutOfStockException, HighDemandProductException {
+        return placeOrderFacade.placeOrder(customer,addressId);
     }
-
-    public List<OrderDetail> getOrderDetailsForCartItems( List<CartItem> cartItems) throws OutOfStockException, ResourceNotFoundException {
-        List<OrderDetail> newOrderDetails=new ArrayList<>();
-        for(CartItem cartItem:cartItems)
+    @Override
+    public List<Order> getAllOrdersForCustomer(Customer customer) throws ResourceNotFoundException {
+        List<Order> orders=orderRepository.findAllByCustomerId(customer.getUserId());
+        if(orders.isEmpty())
         {
-            Product product=cartItem.getProduct();
-            int orderedQuantity=cartItem.getQuantity();
-
-            Optional<ProductInventory> inventoryOptional = productInventoryRepository.findByProductId(product.getId());
-            ProductInventory inventory = inventoryOptional
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found in Inventory"));
-
-            int hasQuantity = inventory.getQuantity();
-            if(hasQuantity<orderedQuantity)
-            {
-                throw new OutOfStockException("Ops ! The "+product.getName()+" has only "+hasQuantity+" quantity");
-            }
-            inventory.setQuantity(hasQuantity - orderedQuantity);
-            productInventoryRepository.save(inventory);
-
-            OrderDetail newOrderDetail=new OrderDetail();
-            newOrderDetail.setProduct(product);
-            newOrderDetail.setQuantity(orderedQuantity);
-            newOrderDetail = orderDetailRepository.save(newOrderDetail);
-            newOrderDetails.add(newOrderDetail);
+            throw new ResourceNotFoundException(customer.getName()+" has not placed any orders yet.");
         }
-        return newOrderDetails;
+        return orders;
     }
 
-    public Order getOrderForOrderDetails(List<OrderDetail> orderDetails,Customer customer,Address address,double totalAmount)
-    {
-        Order order=new Order();
-        order=orderRepository.save(order);
-        for(OrderDetail newOrderDetail:orderDetails)
-        {
-            newOrderDetail.setOrder(order);
-            orderDetailRepository.save(newOrderDetail);
-        }
-        order.setOrderDetails(orderDetails);
-        order.setTotalAmount(totalAmount);
-        order.setCustomer(customer);
-        order.setDeliveryAddress(address);
-        order.setOrderStatus(OrderStatus.PLACED);
-        order=orderRepository.save(order);
-        return order;
-    }
+
 }

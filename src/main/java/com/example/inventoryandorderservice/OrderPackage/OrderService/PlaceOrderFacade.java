@@ -7,9 +7,6 @@ import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException
 import com.example.inventoryandorderservice.model.Customer;
 import com.example.inventoryandorderservice.model.Order;
 
-import java.util.List;
-
-public interface OrderService {
+public interface PlaceOrderFacade {
     Order placeOrder(Customer customer, long addressId) throws AddressNotMatchForUser, ResourceNotFoundException, OutOfStockException, HighDemandProductException;
-    List<Order> getAllOrdersForCustomer(Customer customer) throws ResourceNotFoundException;
 }

@@ -45,7 +45,7 @@ public class CustomerController {
         productResponseDto.setResponseStatus(ResponseStatus.SUCCESS);
         return new ResponseEntity<>(productResponseDto,HttpStatus.OK);
     }
-    @GetMapping("/products/all/{categoryId}")
+    @GetMapping("/products/{categoryId}")
     public ResponseEntity<ProductListResponseDto> getProductByCategoryId(@PathVariable("categoryId") Long categoryId) throws ResourceNotFoundException {
         List<Product> products=customerService.getProductByCategoryId(categoryId);
         ProductListResponseDto productListResponseDto=new ProductListResponseDto();
@@ -79,8 +79,7 @@ public class CustomerController {
     }
 
     @GetMapping("/cart/items")
-    public ResponseEntity<GetCartItemResponseDto> getCartItems(@RequestBody GetCartItemsRequestDto getCartItemsRequestDto) throws ResourceNotFoundException {
-        long userId=getCartItemsRequestDto.getUserId();
+    public ResponseEntity<GetCartItemResponseDto> getCartItems(@RequestParam Long userId) throws ResourceNotFoundException {
         List<CartItem> cartItems = customerService.getCartItems(userId);
         GetCartItemResponseDto responseDto=new GetCartItemResponseDto();
         responseDto.setCartItems(cartItems);
@@ -98,4 +97,23 @@ public class CustomerController {
         responseDto.setStatus(ResponseStatus.SUCCESS);
         return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
     }
+
+    @GetMapping("/orders")
+    public ResponseEntity<GetOrdersListResponseDto> getAllOrdersForCustomer(@RequestParam Long userId) throws ResourceNotFoundException {
+        List<Order> orders= customerService.getAllOrdersForCustomer(userId);
+
+        GetOrdersListResponseDto responseDto=new GetOrdersListResponseDto();
+        responseDto.setOrders(orders);
+        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
+        return new ResponseEntity<>(responseDto,HttpStatus.OK);
+    }
+//    @GetMapping("/orders/{userId}/{orderId}")
+//    public ResponseEntity<GetOrdersListResponseDto> getAllOrdersForCustomer(@RequestParam Long userId,@RequestParam Long orderId) throws ResourceNotFoundException {
+//        List<Order> orders= customerService.getAllOrdersForCustomer(userId);
+//
+//        GetOrdersListResponseDto responseDto=new GetOrdersListResponseDto();
+//        responseDto.setOrders(orders);
+//        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
+//        return new ResponseEntity<>(responseDto,HttpStatus.OK);
+//    }
 }

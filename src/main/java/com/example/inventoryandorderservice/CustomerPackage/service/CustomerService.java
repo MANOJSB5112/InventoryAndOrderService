@@ -18,6 +18,7 @@ public interface CustomerService {
     Cart updateCartItem(long userId, long productId, int quantity) throws ResourceNotFoundException, OutOfStockException, HighDemandProductException;
     List<CartItem>  getCartItems(long userId) throws ResourceNotFoundException;
     Order placeOrder(long userId, long addressId) throws ResourceNotFoundException, AddressNotMatchForUser, OutOfStockException, HighDemandProductException;
-
     Customer validateAndGetCustomer(long userId) throws ResourceNotFoundException;
+
+    List<Order> getAllOrdersForCustomer(long userId) throws ResourceNotFoundException;
 }

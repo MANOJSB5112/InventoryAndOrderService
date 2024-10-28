@@ -69,11 +69,17 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     public Customer validateAndGetCustomer(long userId) throws ResourceNotFoundException {
-        Optional<Customer> customerOptional=customerRepository.findById(userId);
+        Optional<Customer> customerOptional=customerRepository.findByUserId(userId);
         if(customerOptional.isEmpty())
         {
             throw new ResourceNotFoundException("Customer Not found with the id "+userId);
         }
         return customerOptional.get();
+    }
+
+    @Override
+    public List<Order> getAllOrdersForCustomer(long userId) throws ResourceNotFoundException {
+        Customer customer=validateAndGetCustomer(userId);
+        return orderService.getAllOrdersForCustomer(customer);
     }
 }
