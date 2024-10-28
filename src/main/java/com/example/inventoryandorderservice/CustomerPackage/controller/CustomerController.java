@@ -1,22 +1,20 @@
 package com.example.inventoryandorderservice.CustomerPackage.controller;
 
 import com.example.inventoryandorderservice.CustomerPackage.service.CustomerService;
-import com.example.inventoryandorderservice.dtos.ProductListResponseDto;
-import com.example.inventoryandorderservice.dtos.ProductResponseDto;
 import com.example.inventoryandorderservice.dtos.ResponseStatus;
+import com.example.inventoryandorderservice.dtos.*;
 import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
+import com.example.inventoryandorderservice.model.Cart;
+import com.example.inventoryandorderservice.model.CartItem;
 import com.example.inventoryandorderservice.model.Product;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("customer")
+@RequestMapping("/api/customer")
 public class CustomerController {
     private CustomerService customerService;
 
@@ -50,5 +48,39 @@ public class CustomerController {
         productListResponseDto.setProducts(products);
         productListResponseDto.setResponseStatus(ResponseStatus.SUCCESS);
         return new ResponseEntity<>(productListResponseDto, HttpStatus.OK);
+    }
+
+    @PostMapping("/cart/items")
+    public ResponseEntity<CreateOrUpdateCartResponseDto> addToCart(@RequestBody CreateOrUpdateCartRequestDto requestDto) throws ResourceNotFoundException {
+        long userId=requestDto.getUserId();
+        long productId=requestDto.getProductId();
+        int quantity=requestDto.getQuantity();
+        Cart cart = customerService.addToCart(userId, productId, quantity);
+        CreateOrUpdateCartResponseDto responseDto=new CreateOrUpdateCartResponseDto();
+        responseDto.setCart(cart);
+        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @PutMapping("/cart/items")
+    public ResponseEntity<CreateOrUpdateCartResponseDto> updateCartItem(@RequestBody CreateOrUpdateCartRequestDto requestDto) throws ResourceNotFoundException {
+        long userId=requestDto.getUserId();
+        long productId=requestDto.getProductId();
+        int quantity=requestDto.getQuantity();
+        Cart cart = customerService.updateCartItem(userId, productId, quantity);
+        CreateOrUpdateCartResponseDto responseDto=new CreateOrUpdateCartResponseDto();
+        responseDto.setCart(cart);
+        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/cart/items")
+    public ResponseEntity<GetCartItemResponseDto> getCartItems(@RequestBody GetCartItemsRequestDto getCartItemsRequestDto) throws ResourceNotFoundException {
+        long userId=getCartItemsRequestDto.getUserId();
+        List<CartItem> cartItems = customerService.getCartItems(userId);
+        GetCartItemResponseDto responseDto=new GetCartItemResponseDto();
+        responseDto.setCartItems(cartItems);
+        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
+        return new ResponseEntity<>(responseDto,HttpStatus.OK);
     }
 }

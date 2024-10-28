@@ -19,5 +19,5 @@ public class Order extends BaseModel{
     private List<OrderDetail> orderDetails;
     @Enumerated(EnumType.ORDINAL)
     private OrderStatus orderStatus;
-    private double totalAmount;
+    private Double totalAmount;
 }
