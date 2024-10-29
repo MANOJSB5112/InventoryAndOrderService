@@ -22,4 +22,6 @@ public interface CustomerService {
     Order getOrderByIdForCustomer(long userId,long orderId) throws ResourceNotFoundException, AccessDeniedException;
 
     String cancelOrderById(long userId, long orderId) throws ResourceNotFoundException, AccessDeniedException;
+
+    void createNewCustomer(long userId,String name,String email,String phoneNumber,UserType userType);
 }

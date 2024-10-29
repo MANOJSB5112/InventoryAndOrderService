@@ -3,6 +3,7 @@ package com.example.inventoryandorderservice.SellerPackage.service;
 import com.example.inventoryandorderservice.exceptions.AccessDeniedException;
 import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
 import com.example.inventoryandorderservice.model.Product;
+import com.example.inventoryandorderservice.model.UserType;
 
 public interface SellerService {
 
@@ -11,5 +12,6 @@ public interface SellerService {
 
     void deleteProduct(long sellerId,long productId) throws ResourceNotFoundException, AccessDeniedException;
 
+    void createNewSeller(long userId, String name, String email, String phoneNumber, UserType userType);
 
 }

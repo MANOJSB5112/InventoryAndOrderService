@@ -14,6 +14,7 @@ public class Seller extends BaseModel{
     private long userId;
     private String name;
     private String email;
+    private String phoneNumber;
     @OneToOne
     private Address address;
     @Enumerated(EnumType.ORDINAL)

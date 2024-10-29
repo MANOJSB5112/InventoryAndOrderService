@@ -5,6 +5,7 @@ import com.example.inventoryandorderservice.exceptions.AccessDeniedException;
 import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
 import com.example.inventoryandorderservice.model.Product;
 import com.example.inventoryandorderservice.model.Seller;
+import com.example.inventoryandorderservice.model.UserType;
 import com.example.inventoryandorderservice.repository.SellerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,17 @@ public class SellerServiceImpl implements SellerService{
     public void deleteProduct(long sellerId, long productId) throws ResourceNotFoundException, AccessDeniedException {
         Seller seller=validateSellerAndGet(sellerId);
         productService.deleteProduct(seller,productId);
+    }
+
+    @Override
+    public void createNewSeller(long userId, String name, String email, String phoneNumber, UserType userType) {
+        Seller seller=new Seller();
+        seller.setUserId(userId);
+        seller.setName(name);
+        seller.setEmail(email);
+        seller.setPhoneNumber(phoneNumber);
+        seller.setUserType(userType);
+        sellerRepository.save(seller);
     }
 
     public Seller validateSellerAndGet(Long sellerId) throws ResourceNotFoundException {

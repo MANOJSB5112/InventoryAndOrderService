@@ -16,6 +16,7 @@ public class Customer extends BaseModel{
     private long userId;
     private String name;
     private String email;
+    private String phoneNumber;
     @OneToMany(mappedBy = "customer")
     private List<Address> addresses;
     @OneToMany(mappedBy = "customer")

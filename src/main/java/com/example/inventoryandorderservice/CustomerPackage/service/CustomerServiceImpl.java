@@ -91,4 +91,15 @@ public class CustomerServiceImpl implements CustomerService{
         Customer customer=validateAndGetCustomer(userId);
         return orderService.cancelOrderById(customer,orderId);
     }
+
+    @Override
+    public void createNewCustomer(long userId, String name, String email, String phoneNumber, UserType userType) {
+        Customer customer=new Customer();
+        customer.setUserId(userId);
+        customer.setName(name);
+        customer.setEmail(email);
+        customer.setPhoneNumber(phoneNumber);
+        customer.setUserType(userType);
+        customerRepository.save(customer);
+    }
 }
