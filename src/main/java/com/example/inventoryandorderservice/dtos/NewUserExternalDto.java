@@ -1,11 +1,11 @@
-package com.example.inventoryandorderservice.Kafka.dtos;
+package com.example.inventoryandorderservice.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateNewUserDto {
+public class NewUserExternalDto {
     private long userId;
     private String name;
     private String email;
