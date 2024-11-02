@@ -51,28 +51,14 @@ public class CustomerController {
         return new ResponseEntity<>(productListResponseDto, HttpStatus.OK);
     }
 
-    @PostMapping("/{userId}/cart/items")
-    public ResponseEntity<CreateOrUpdateCartResponseDto> addToCart(@PathVariable("userId") Long userId,
-                                                                   @RequestBody CreateOrUpdateCartRequestDto requestDto) throws ResourceNotFoundException {
-        long productId = requestDto.getProductId();
-        int quantity = requestDto.getQuantity();
-
-        Cart cart = customerService.addToCart(userId, productId, quantity);
-        CreateOrUpdateCartResponseDto responseDto = new CreateOrUpdateCartResponseDto();
-        responseDto.setCart(cart);
-        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
-
-        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
-    }
-
     @PutMapping("/{userId}/cart/items")
-    public ResponseEntity<CreateOrUpdateCartResponseDto> updateCartItem(@PathVariable("userId") Long userId,
+    public ResponseEntity<CreateOrUpdateCartResponseDto> addOrUpdateCartItem(@PathVariable("userId") Long userId,
                                                                         @RequestBody CreateOrUpdateCartRequestDto requestDto)
-            throws ResourceNotFoundException, OutOfStockException, HighDemandProductException {
+            throws Exception {
         long productId = requestDto.getProductId();
         int quantity = requestDto.getQuantity();
 
-        Cart cart = customerService.updateCartItem(userId, productId, quantity);
+        Cart cart = customerService.addOrUpdateCartItem(userId, productId, quantity);
         CreateOrUpdateCartResponseDto responseDto = new CreateOrUpdateCartResponseDto();
         responseDto.setCart(cart);
         responseDto.setResponseStatus(ResponseStatus.SUCCESS);

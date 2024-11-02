@@ -5,24 +5,22 @@ import com.example.inventoryandorderservice.exceptions.OutOfStockException;
 import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
 import com.example.inventoryandorderservice.model.*;
 import com.example.inventoryandorderservice.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CartServiceImpl implements CartService {
+public class CartServiceImpl implements CartService{
     private CartRepository cartRepository;
     private ProductRepository productRepository;
     private CartItemRepository cartItemRepository;
-
     private ProductInventoryRepository productInventoryRepository;
     private HighDemandProductRepository highDemandProductRepository;
 
-    @Autowired
     public CartServiceImpl(CartRepository cartRepository, ProductRepository productRepository, CartItemRepository cartItemRepository,
-                           ProductInventoryRepository productInventoryRepository,HighDemandProductRepository highDemandProductRepository) {
+                           ProductInventoryRepository productInventoryRepository, HighDemandProductRepository highDemandProductRepository) {
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
         this.cartItemRepository = cartItemRepository;
@@ -31,70 +29,74 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart addToCart(long userId, long productId, int quantity) throws ResourceNotFoundException {
-        Cart cart = cartRepository.findByCustomerId(userId).orElse(new Cart());
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + productId));
-
+    public Cart addOrUpdateCartItem(long userId, long productId, int quantity) throws Exception {
+        Optional<Cart> cartOptional = cartRepository.findByUserId(userId);
+        Cart cart=null;
+        if(cartOptional.isEmpty())
+        {
+            cart=new Cart();
+            cart.setCartItems(new ArrayList<>());
+            cart.setUserId(userId);
+            cart=cartRepository.save(cart);
+        }else {
+            cart=cartOptional.get();
+        }
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isEmpty())
+        {
+            throw new ResourceNotFoundException("Product not found with id " + productId);
+        }
+        Product product=productOptional.get();
         Optional<CartItem> existingItem = cart.getCartItems().stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst();
         CartItem cartItem = null;
-        if (existingItem.isPresent()) {
-            cartItem = existingItem.get();
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
-        } else {
-            cartItem = new CartItem();
-            cartItem.setProduct(product);
-            cartItem.setQuantity(quantity);
-            cartItem.setCart(cart);
-            cart.getCartItems().add(cartItem);
+        if(existingItem.isPresent() && quantity == 0 )
+        {
+            cart=deleteCartItem(cart, existingItem.get());
+            return cart;
+        }else if(existingItem.isEmpty() && quantity == 0 )
+        {
+            throw new Exception("quantity should be AtLeast 1");
         }
+        int orderedQuantity=verifyMaxPossibleQuantity(productId,quantity);
+        if (existingItem.isEmpty()) {
+            cartItem=new CartItem();
+            cartItem.setQuantity(0);
+            cartItem=cartItemRepository.save(cartItem);
+            cart.getCartItems().add(cartItem);
+        }else {
+            cartItem = existingItem.get();
+        }
+
+        //updating inventory
+        updateProductInventoryQuantity(productId,cartItem.getQuantity(),orderedQuantity);
+
+        cartItem.setProduct(product);
+        cartItem.setQuantity(orderedQuantity);
+        cartItem.setCart(cart);
         cartItemRepository.save(cartItem);
         cart.setTotalPrice(calculateTotalPrice(cart));
-        return cartRepository.save(cart);
-    }
-
-    @Override
-    public Cart updateCartItem(long userId, long productId, int quantity) throws ResourceNotFoundException, OutOfStockException, HighDemandProductException {
-        Cart cart = cartRepository.findByCustomerId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found with the userId " + userId));
-        Optional<CartItem> existingItem = cart.getCartItems().stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst();
-        if (existingItem.isEmpty()) {
-            throw new ResourceNotFoundException("CartItem not found with productId " + productId);
-        }
-        CartItem cartItem = existingItem.get();
-        if (quantity == 0) {
-            deleteCartItem(cart, cartItem);
-        } else {
-            int orderedQuantity=verifyMaxPossibleQuantity(productId,quantity);
-            cartItem.setQuantity(orderedQuantity);
-            cartItemRepository.save(cartItem);
-            cart.setTotalPrice(calculateTotalPrice(cart));
-            cartRepository.save(cart);
-        }
+        cartRepository.save(cart);
         return cart;
     }
 
     @Override
     public List<CartItem> getCartItems(long userId) throws ResourceNotFoundException {
-        Cart cart = cartRepository.findByCustomerId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found for Customer with Id " + userId));
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found for Customer with Id " + userId));
         return cartItemRepository.findAllByCartId(cart.getId());
     }
 
     @Override
     public Double getCartValue(long userId) throws ResourceNotFoundException {
-        Cart cart = cartRepository.findByCustomerId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found for Customer with Id " + userId));
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found for Customer with Id " + userId));
         return cart.getTotalPrice();
     }
-
-    public void deleteCartItem(Cart cart, CartItem cartItem) {
+    public Cart deleteCartItem(Cart cart, CartItem cartItem) {
         cart.getCartItems().remove(cartItem);
         cartItemRepository.delete(cartItem);
-
         cart.setTotalPrice(calculateTotalPrice(cart));
-        cartRepository.save(cart);
+        return cartRepository.save(cart);
     }
 
     private Double calculateTotalPrice(Cart cart) {
@@ -143,5 +145,21 @@ public class CartServiceImpl implements CartService {
             return highDemandProduct.getMaxQuantity();
         }
         return 0;
+    }
+
+    public void updateProductInventoryQuantity(long productId,int currentQuantity,int newQuantity) throws ResourceNotFoundException {
+        Optional<ProductInventory> inventoryOptional = productInventoryRepository.findByProductId(productId);
+        ProductInventory inventory = inventoryOptional
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found in Inventory"));
+        int differenceQuantity=0;
+        if(newQuantity>currentQuantity)
+        {
+            differenceQuantity=newQuantity-currentQuantity;
+            inventory.setQuantity(inventory.getQuantity()-differenceQuantity);
+        }else {
+            differenceQuantity=currentQuantity-newQuantity;
+            inventory.setQuantity(inventory.getQuantity()+differenceQuantity);
+        }
+        productInventoryRepository.save(inventory);
     }
 }

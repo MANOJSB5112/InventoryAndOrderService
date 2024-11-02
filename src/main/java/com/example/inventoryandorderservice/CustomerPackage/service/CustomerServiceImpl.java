@@ -1,5 +1,6 @@
 package com.example.inventoryandorderservice.CustomerPackage.service;
 
+
 import com.example.inventoryandorderservice.CartPackage.service.CartService;
 import com.example.inventoryandorderservice.OrderPackage.OrderService.OrderService;
 import com.example.inventoryandorderservice.ProductPackage.service.ProductService;
@@ -44,17 +45,14 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public Cart addToCart(long userId, long productId, int quantity) throws ResourceNotFoundException {
-       return cartService.addToCart(userId,productId,quantity);
-    }
-
-    @Override
-    public Cart updateCartItem(long userId, long productId, int quantity) throws ResourceNotFoundException, OutOfStockException, HighDemandProductException {
-        return cartService.updateCartItem(userId,productId,quantity);
+    public Cart addOrUpdateCartItem(long userId, long productId, int quantity) throws Exception {
+        Customer customer=validateAndGetCustomer(userId);
+        return cartService.addOrUpdateCartItem(userId,productId,quantity);
     }
 
     @Override
     public List<CartItem> getCartItems(long userId) throws ResourceNotFoundException {
+        Customer customer=validateAndGetCustomer(userId);
         return cartService.getCartItems(userId);
     }
 
