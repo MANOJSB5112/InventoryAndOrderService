@@ -41,7 +41,8 @@ public class PlaceOrderFacadeImpl implements PlaceOrderFacade{
     @Transactional
     public Order placeOrder(Customer customer, long addressId) throws AddressNotMatchForUser, ResourceNotFoundException, OutOfStockException {
         Address address=addressService.validateAddressForUserAndGet(customer.getUserId(),addressId);
-        List<CartItem> cartItems=cartService.getCartItems(customer.getUserId());
+        Cart cart=cartService.getCartItems(customer.getUserId());
+        List<CartItem> cartItems=cart.getCartItems();
         double totalAmount=cartService.getCartValue(customer.getUserId());
         List<OrderDetail> orderDetails=getOrderDetailsForCartItems(cartItems);
         return getOrderForOrderDetails(orderDetails,customer,address,totalAmount);
@@ -77,19 +78,21 @@ public class PlaceOrderFacadeImpl implements PlaceOrderFacade{
 
     public Order getOrderForOrderDetails(List<OrderDetail> orderDetails,Customer customer,Address address,double totalAmount)
     {
-        Order order=new Order();
-        order=orderRepository.save(order);
-        for(OrderDetail newOrderDetail:orderDetails)
-        {
-            newOrderDetail.setOrder(order);
-            orderDetailRepository.save(newOrderDetail);
-        }
-        order.setOrderDetails(orderDetails);
+        Order order = new Order();
+
         order.setTotalAmount(totalAmount);
         order.setCustomer(customer);
         order.setDeliveryAddress(address);
         order.setOrderStatus(OrderStatus.PLACED);
-        order=orderRepository.save(order);
+        order.setOrderDetails(orderDetails);
+
+        order = orderRepository.save(order);
+
+        for (OrderDetail newOrderDetail : orderDetails) {
+            newOrderDetail.setOrder(order);
+            orderDetailRepository.save(newOrderDetail);
+        }
+
         return order;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.inventoryandorderservice.repository;
 
+import com.example.inventoryandorderservice.model.Customer;
 import com.example.inventoryandorderservice.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
   List<Order> findAllByCustomerId(long userId);
 
+List<Order> findByCustomer(Customer customer);
   @Override
   Optional<Order> findById(Long orderId);
 }

@@ -18,8 +18,6 @@ public class Customer extends BaseModel{
     private String email;
     private String phoneNumber;
     @OneToMany(mappedBy = "customer")
-    private List<Address> addresses;
-    @OneToMany(mappedBy = "customer")
     private List<Order> orders;
     @Enumerated(EnumType.ORDINAL)
     private UserType userType;

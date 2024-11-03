@@ -1,7 +1,9 @@
 package com.example.inventoryandorderservice.CustomerPackage.service;
 
 
+import com.example.inventoryandorderservice.AddressPackage.Service.AddressService;
 import com.example.inventoryandorderservice.CartPackage.service.CartService;
+import com.example.inventoryandorderservice.CustomerPackage.dtos.AddAddressRequestDto;
 import com.example.inventoryandorderservice.OrderPackage.OrderService.OrderService;
 import com.example.inventoryandorderservice.ProductPackage.service.ProductService;
 import com.example.inventoryandorderservice.exceptions.*;
@@ -19,15 +21,18 @@ public class CustomerServiceImpl implements CustomerService{
     private CartService cartService;
     private OrderService orderService;
     private CustomerRepository customerRepository;
+    private  AddressService addressService;
+
 
     @Autowired
     public CustomerServiceImpl(ProductService productService,CartService cartService,OrderService orderService,
-                               CustomerRepository customerRepository)
+                               CustomerRepository customerRepository,AddressService addressService)
     {
         this.productService=productService;
         this.cartService=cartService;
         this.orderService=orderService;
         this.customerRepository=customerRepository;
+        this.addressService=addressService;
     }
     @Override
     public List<Product> getAllProducts() {
@@ -51,7 +56,7 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public List<CartItem> getCartItems(long userId) throws ResourceNotFoundException {
+    public Cart getCartItems(long userId) throws ResourceNotFoundException {
         Customer customer=validateAndGetCustomer(userId);
         return cartService.getCartItems(userId);
     }
@@ -99,5 +104,10 @@ public class CustomerServiceImpl implements CustomerService{
         customer.setPhoneNumber(phoneNumber);
         customer.setUserType(userType);
         customerRepository.save(customer);
+    }
+
+    @Override
+    public Address addNewAddress(long userId, AddAddressRequestDto addAddressRequestDto) {
+       return  addressService.addNewAddress(userId,addAddressRequestDto);
     }
 }

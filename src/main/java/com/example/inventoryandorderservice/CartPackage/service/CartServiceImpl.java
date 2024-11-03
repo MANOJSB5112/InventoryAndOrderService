@@ -8,7 +8,6 @@ import com.example.inventoryandorderservice.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -82,9 +81,8 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public List<CartItem> getCartItems(long userId) throws ResourceNotFoundException {
-        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found for Customer with Id " + userId));
-        return cartItemRepository.findAllByCartId(cart.getId());
+    public Cart getCartItems(long userId) throws ResourceNotFoundException {
+        return cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found for Customer with Id " + userId));
     }
 
     @Override

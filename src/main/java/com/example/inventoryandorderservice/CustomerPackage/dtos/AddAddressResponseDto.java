@@ -4,11 +4,10 @@ import com.example.inventoryandorderservice.dtos.ResponseStatus;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class GetOrdersListResponseDto {
-    private List<CustomOrder> customOrderList;
+public class AddAddressResponseDto {
+    private String address;
     private ResponseStatus responseStatus;
+
 }

@@ -30,7 +30,7 @@ public class OrderServiceImpl implements OrderService{
     }
     @Override
     public List<Order> getAllOrdersForCustomer(Customer customer) throws ResourceNotFoundException {
-        List<Order> orders=orderRepository.findAllByCustomerId(customer.getUserId());
+        List<Order> orders=orderRepository.findByCustomer(customer);
         if(orders.isEmpty())
         {
             throw new ResourceNotFoundException(customer.getName()+" has not placed any orders yet.");

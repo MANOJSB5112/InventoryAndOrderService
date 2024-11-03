@@ -1,13 +1,16 @@
 package com.example.inventoryandorderservice.CustomerPackage.dtos;
 
 import com.example.inventoryandorderservice.dtos.ResponseStatus;
-import com.example.inventoryandorderservice.model.Cart;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
 public class CreateOrUpdateCartResponseDto {
-    private Cart cart;
+    private long cartId;
+    List<CustomCartItem> customCartItems;
+    private double totalCartValue;
     private ResponseStatus responseStatus;
 }

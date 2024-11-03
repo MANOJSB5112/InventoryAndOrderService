@@ -3,7 +3,6 @@ package com.example.inventoryandorderservice.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,8 +14,6 @@ public class Seller extends BaseModel{
     private String name;
     private String email;
     private String phoneNumber;
-    @OneToOne
-    private Address address;
     @Enumerated(EnumType.ORDINAL)
     private UserType userType;
 }
