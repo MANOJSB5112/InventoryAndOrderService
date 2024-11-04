@@ -5,6 +5,7 @@ import com.example.inventoryandorderservice.CustomerPackage.service.CustomerServ
 import com.example.inventoryandorderservice.dtos.ResponseStatus;
 import com.example.inventoryandorderservice.exceptions.*;
 import com.example.inventoryandorderservice.model.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class CustomerController {
     }
 
     @GetMapping("/products/{productId}")
-    public ResponseEntity<ProductResponseDto> getProductById(@PathVariable("productId") Long productId) throws ResourceNotFoundException {
+    public ResponseEntity<ProductResponseDto> getProductById(@PathVariable("productId") Long productId) throws ResourceNotFoundException, JsonProcessingException {
         Product product= customerService.getProductById(productId);
 
         CustomProduct customProduct= customResponseFacade.getCustomProduct(product);

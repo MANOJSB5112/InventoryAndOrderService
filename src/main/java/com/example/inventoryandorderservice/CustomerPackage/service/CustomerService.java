@@ -3,12 +3,13 @@ package com.example.inventoryandorderservice.CustomerPackage.service;
 import com.example.inventoryandorderservice.CustomerPackage.dtos.AddAddressRequestDto;
 import com.example.inventoryandorderservice.exceptions.*;
 import com.example.inventoryandorderservice.model.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
 
 public interface CustomerService {
     List<Product> getAllProducts();
-    Product getProductById(Long productId) throws ResourceNotFoundException;
+    Product getProductById(Long productId) throws ResourceNotFoundException, JsonProcessingException;
 
     List<Product> getProductByCategoryId(Long categoryId) throws ResourceNotFoundException;
     Cart addOrUpdateCartItem(long userId, long productId, int quantity) throws Exception;

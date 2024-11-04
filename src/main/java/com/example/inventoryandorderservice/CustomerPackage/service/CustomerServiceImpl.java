@@ -9,6 +9,7 @@ import com.example.inventoryandorderservice.ProductPackage.service.ProductServic
 import com.example.inventoryandorderservice.exceptions.*;
 import com.example.inventoryandorderservice.model.*;
 import com.example.inventoryandorderservice.repository.CustomerRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +41,7 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public Product getProductById(Long productId) throws ResourceNotFoundException {
+    public Product getProductById(Long productId) throws ResourceNotFoundException, JsonProcessingException {
         return productService.getProductById(productId);
     }
 

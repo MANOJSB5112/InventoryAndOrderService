@@ -4,6 +4,7 @@ import com.example.inventoryandorderservice.exceptions.AccessDeniedException;
 import com.example.inventoryandorderservice.exceptions.ResourceNotFoundException;
 import com.example.inventoryandorderservice.model.Product;
 import com.example.inventoryandorderservice.model.Seller;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public interface ProductService {
     void deleteProduct(Seller seller,long productId) throws AccessDeniedException, ResourceNotFoundException;
 
     List<Product> getAllProducts();
-    Product getProductById(Long productId) throws ResourceNotFoundException;
+    Product getProductById(Long productId) throws ResourceNotFoundException, JsonProcessingException;
 
     List<Product> getProductByCategoryId(Long categoryId) throws ResourceNotFoundException;
 

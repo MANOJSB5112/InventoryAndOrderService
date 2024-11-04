@@ -7,7 +7,10 @@ import com.example.inventoryandorderservice.model.Category;
 import com.example.inventoryandorderservice.model.Product;
 import com.example.inventoryandorderservice.model.Seller;
 import com.example.inventoryandorderservice.repository.ProductRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,13 +21,19 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
     private CategoryService categoryService;
+    private  RedisTemplate<String, String> template;
+    private  ObjectMapper objectMapper;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository,CategoryService categoryService)
+    public ProductServiceImpl(ProductRepository productRepository,CategoryService categoryService,
+                              RedisTemplate<String, String> template,ObjectMapper objectMapper)
     {
         this.productRepository=productRepository;
         this.categoryService=categoryService;
+        this.template=template;
+        this.objectMapper=objectMapper;
     }
+    private static final String STRING_KEY_PREFIX = "redi2read:strings:";
     @Override
     public Product addProduct(Seller seller, long categoryId, String name, String description, double price) throws ResourceNotFoundException {
         Category category=categoryService.validateCategoryAndGet(categoryId);
@@ -74,8 +83,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getProductById(Long productId) throws ResourceNotFoundException {
-        return validateProductIdAndGet(productId);
+    public Product getProductById(Long productId) throws ResourceNotFoundException, JsonProcessingException {
+        String redisKey = STRING_KEY_PREFIX + productId;
+        Product product = null;
+
+        // Try to fetch the product from Redis
+        String productJson = template.opsForValue().get(redisKey);
+        if (productJson != null) {
+            product = objectMapper.readValue(productJson, Product.class);
+        }
+
+        // If the product is not found in Redis, fetch it from the REST API
+        if (product == null) {
+            product = validateProductIdAndGet(productId);
+                productJson = objectMapper.writeValueAsString(product);
+                template.opsForValue().set(redisKey, productJson);
+        }
+        return product;
     }
 
     @Override

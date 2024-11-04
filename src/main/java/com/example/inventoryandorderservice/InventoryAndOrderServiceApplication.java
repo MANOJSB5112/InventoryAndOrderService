@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableSqs
+//@EnableCaching
 public class InventoryAndOrderServiceApplication {
 
     public static void main(String[] args) {
